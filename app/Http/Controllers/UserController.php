@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 use App\Models\User;
 use App\Models\Token;
@@ -51,21 +52,52 @@ class UserController extends Controller
 
     //api функцуионал
 
+    private const VALIDATOR = [
+        "email" => "required|email",
+        "password" => "required|min:3|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[_#!%]).+$/"
+    ];
+
+    private const VALIDATE_ERROR = [
+        "required" => "Заполните это поле",
+        "email" => "Поле должно быть почтой",
+        "min" => "Минимум :min символов",
+        "regex" => "Поле должно содержать спец символ"
+    ];
+
     public function apiRegister(Request $request){
+        // /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[_#!%]).+$/
         $email = $request->input("email");
         $password = $request->input("password");
 
-        User::create([
-            "email" => $email,
-            "name" => "Имя",
-            "date" => "1970-01-01",
-            "password" => Hash::make($password),
-            "is_admin" => 0,
-        ]);
+        $validator = Validator::make(
+            $request->all(),
+            self::VALIDATOR,
+            self::VALIDATE_ERROR,
+        );
 
-        return response()->json([
-            "success"=> true
-        ], 201);
+        if($validator->fails()){
+            return response()->json([
+                "message" => "Invalid fields",
+                "errors" => [
+                    "field_name" => [
+                        "Error message"
+                    ]
+                ]
+            ], 422);
+        } else {
+            User::create([
+                "email" => $email,
+                "name" => "Имя",
+                "date" => "1970-01-01",
+                "password" => Hash::make($password),
+                "is_admin" => 0,
+            ]);
+    
+            return response()->json([
+                "success"=> true
+            ], 201);
+        }
+
     }
 
     public function apiLogin(Request $request){
