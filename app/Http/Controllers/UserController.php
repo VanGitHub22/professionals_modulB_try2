@@ -66,6 +66,8 @@ class UserController extends Controller
 
     public function apiRegister(Request $request){
         // /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[_#!%]).+$/
+        // /^http:\/\/super-tube\.cc\/video\/v\d+$/
+        // /^\d{4} \d{4} \d{4} \d{4}$/
         $email = $request->input("email");
         $password = $request->input("password");
 
