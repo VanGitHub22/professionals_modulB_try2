@@ -109,7 +109,13 @@ class CourseController extends Controller
     }
 
     public function apiCourses(Request $request){
-        $token = $request->bearerToken();
+        if($request->bearerToken() !== null){
+            $token = $request->bearerToken();
+        } else {
+            return response()->json([
+                "message" => "Forbidden for you"
+            ], 403);
+        };
 
         $courses = Course::select([
             "id",
